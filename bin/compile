@@ -24,3 +24,10 @@ fi
 
 cp "$nginx_conf" "$BUILD_DIR/openresty/nginx/conf/nginx.conf.template"
 echo "-----> openresty-buildpack: nginx.conf copied to openresty/nginx/conf/nginx.conf.template"
+
+# Add a profile.d script to add openresty tools and luarocks to PATH
+mkdir -p "$BUILD_DIR/.profile.d"
+cat << "EOF" > "$BUILD_DIR/.profile.d/000-openresty-path.sh"
+export PATH="$PATH:$HOME/openresty/bin:$HOME/openresty/luarocks/bin:$HOME/openresty/luajit/bin:$HOME/openresty/nginx/sbin"
+EOF
+chmod +x "$BUILD_DIR/.profile.d/000-openresty-path.sh"
