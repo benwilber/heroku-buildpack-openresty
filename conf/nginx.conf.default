@@ -1,0 +1,39 @@
+daemon off;
+worker_processes {{ NGINX_WORKERS or "auto" }};
+
+events {
+	use epoll;
+	accept_mutex on;
+	worker_connections {{ NGINX_WORKER_CONNECTIONS or "1024" }};
+}
+
+http {
+	gzip on;
+	gzip_comp_level 2;
+	gzip_min_length 512;
+	gzip_proxied any; # Heroku router sends Via header
+
+	server_tokens off;
+
+	log_format l2met 'measure#nginx.service=$request_time request_id=$http_x_request_id';
+	access_log {{ NGINX_ACCESS_LOG_PATH or "logs/nginx/access.log" }} l2met;
+	error_log {{ NGINX_ERROR_LOG_PATH or "logs/nginx/error.log" }};
+
+	include mime.types;
+	default_type application/octet-stream;
+	sendfile on;
+
+	# Must read the body in 5 seconds.
+	client_body_timeout 5;
+
+	server {
+		listen {{ PORT }};
+		server_name _;
+		keepalive_timeout 5;
+
+		location / {
+			default_type text/plain;
+			return 200 "Hello OpenResty!\n";
+		}
+	}
+}

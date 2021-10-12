@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+set -e
+
+# clean up leaking environment
+unset GIT_DIR
+
+# parse and derive params
+BUILD_DIR=$1
+CACHE_DIR=$2
+BUILDPACK_DIR="$(dirname "$(dirname "$0")")"
+
+tar -zxvf "openresty-$STACK".tgz -C "$BUILD_DIR"
+
+openresty_version=$($BUILD_DIR/openresty/bin/openresty -V 2>&1 | head -1 | awk '{ print $NF }')
+echo "-----> openresty-buildpack: Installed ${openresty_version} to app/openresty/bin"
+cp -a bin/start-openresty-solo "$BUILD_DIR/openresty/bin/"
+echo "-----> openresty-buildpack: Added start-openresty-solo to app/openresty/bin"
+
+nginx_conf="conf/nginx.conf.default"
+
+if [[ -f "$BUILD_DIR/conf/nginx.conf" ]]; then
+	nginx_conf="$BUILD_DIR/conf/nginx.conf"
+fi
+
+cp "$nginx_conf" "openresty/nginx/conf/nginx.conf.template"
+echo "-----> openresty-buildpack: nginx.conf copied to openresty/nginx/conf/nginx.conf.template"
