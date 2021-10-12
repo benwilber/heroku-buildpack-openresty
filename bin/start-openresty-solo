@@ -31,7 +31,7 @@ echo "buildpack=openresty at=logs-initialized"
   #We expect nginx to run in foreground.
   #We also expect a socket to be at /tmp/openresty.socket.
   echo "buildpack=openresty at=openresty-start"
-  openresty/bin/openresty -c openresty/nginx/conf/nginx.conf
+  openresty/bin/openresty
   echo "openresty" > $psmgr
 ) &
 
